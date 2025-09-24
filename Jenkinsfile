@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Prepare') {
+            steps {
+                sh 'chmod +x ./mvnw'  // Grant execute permission to mvnw
+            }
+        }
         stage('Build') {
             steps {
                 sh './mvnw compile'
