@@ -2,33 +2,43 @@ pipeline {
     agent any
 
     stages {
-        stage('GIT') {
+        stage('Checkout & Prepare') {
             steps {
-                // Checkout code from GitHub
-                git branch: 'main',
-                    url: 'https://github.com/MaramRezgui1/student-management',
-                    credentialsId: 'jenkins-example-github-pat'
+                sh 'chmod +x ./mvnw'
+                sh './mvnw --version'  // Verify Maven is working
             }
         }
-
         stage('Build') {
             steps {
-                // Make Maven wrapper executable
-                sh 'chmod +x mvnw'
-
-                // Run the build
-                sh 'mvn clean install -DskipTests'
+                sh './mvnw clean compile'
             }
         }
-
+        stage('Test') {
+            steps {
+                sh './mvnw test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'  // Publish test results
+                }
+            }
+        }
+        stage('Package') {
+            steps {
+                sh './mvnw package -DskipTests'
+            }
+        }
     }
 
     post {
+        always {
+            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+        }
         success {
-            echo 'Build completed successfully!'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo 'Build failed.'
+            echo 'Pipeline failed!'
         }
     }
 }
