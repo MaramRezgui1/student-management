@@ -6,7 +6,7 @@ pipeline {
             steps {
                 // Checkout code from GitHub
                 git branch: 'main',
-                    url: 'https://github.com/mednaceurkhlifi/DevOps.git',
+                    url: 'https://github.com/MaramRezgui1/student-management',
                     credentialsId: 'jenkins-example-github-pat'
             }
         }
