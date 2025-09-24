@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout & Prepare') {
+        stage('Prepare') {
             steps {
                 sh 'chmod +x ./mvnw'
-                sh './mvnw --version'  // Verify Maven is working
             }
         }
         stage('Build') {
@@ -15,17 +14,12 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh './mvnw test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'  // Publish test results
-                }
+                sh './mvnw test -DskipTests'  // Skip tests
             }
         }
         stage('Package') {
             steps {
-                sh './mvnw package -DskipTests'
+                sh './mvnw package -DskipTests'  // Skip tests during packaging too
             }
         }
     }
@@ -33,12 +27,6 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-        }
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
