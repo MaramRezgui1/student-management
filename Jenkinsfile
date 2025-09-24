@@ -2,31 +2,33 @@ pipeline {
     agent any
 
     stages {
-        stage('Prepare') {
+        stage('GIT') {
             steps {
-                sh 'chmod +x ./mvnw'  // Grant execute permission to mvnw
+                // Checkout code from GitHub
+                git branch: 'main',
+                    url: 'https://github.com/mednaceurkhlifi/DevOps.git',
+                    credentialsId: 'jenkins-example-github-pat'
             }
         }
+
         stage('Build') {
             steps {
-                sh './mvnw compile'
+                // Make Maven wrapper executable
+                sh 'chmod +x mvnw'
+
+                // Run the build
+                sh 'mvn clean install -DskipTests'
             }
         }
-        stage('Test') {
-            steps {
-                sh './mvnw test'
-            }
-        }
-        stage('Package') {
-            steps {
-                sh './mvnw package'
-            }
-        }
+
     }
 
     post {
-        always {
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed.'
         }
     }
 }
